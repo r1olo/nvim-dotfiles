@@ -40,7 +40,7 @@ return require("packer").startup(function(use)
     -- Autopairs plugin
     use {
         "windwp/nvim-autopairs",
-        config = function() require("nvim-autopairs").setup() end,
+        config = function() require("config.autopairs") end,
     }
 
     -- HopWord plugin
@@ -65,6 +65,7 @@ return require("packer").startup(function(use)
             { "hrsh7th/cmp-buffer" },
             { "hrsh7th/cmp-nvim-lsp" },
             { "hrsh7th/cmp-nvim-lsp-signature-help" },
+            { "hrsh7th/cmp-path" },
             { "L3MON4D3/LuaSnip" },
         },
         config = function() require("config.lsp") end,
