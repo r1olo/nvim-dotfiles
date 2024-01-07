@@ -9,50 +9,56 @@ return require("packer").startup(function(use)
         "nvim-telescope/telescope.nvim",
         tag = "0.1.5",
         requires = { { "nvim-lua/plenary.nvim" } },
-        config = function() require("config.telescope") end,
+        config = require("config.telescope"),
     }
 
     -- Our theme (config is in config.colorscheme for ALL themes)
     use {
         "Mofiqul/dracula.nvim",
-        config = function() require("config.colorscheme") end,
+        config = require("config.colorscheme"),
     }
 
     -- Treesitter
     use {
         "nvim-treesitter/nvim-treesitter",
         run = { ":TSUpdate" },
-        config = function() require("config.treesitter") end,
+        config = require("config.treesitter"),
     }
 
     -- Undotree plugin
     use {
         "mbbill/undotree",
-        config = function() require("config.undotree") end,
+        config = require("config.undotree"),
+    }
+
+    -- Indent blank line
+    use {
+        "lukas-reineke/indent-blankline.nvim",
+        config = require("config.ibl"),
     }
 
     -- Status bar
     use {
         "nvim-lualine/lualine.nvim",
-        config = function() require("config.lualine") end,
+        config = require("config.lualine"),
     }
 
     -- Autopairs plugin
     use {
         "windwp/nvim-autopairs",
-        config = function() require("config.autopairs") end,
+        config = require("config.autopairs"),
     }
 
     -- HopWord plugin
     use {
         "phaazon/hop.nvim",
-        config = function() require("config.hop") end,
+        config = require("config.hop"),
     }
 
     -- Git plugin
     use {
         "tpope/vim-fugitive",
-        config = function() require("config.fugitive") end,
+        config = require("config.fugitive"),
     }
 
     -- LSP configuration (dependencies can be in any order really)
@@ -68,6 +74,6 @@ return require("packer").startup(function(use)
             { "hrsh7th/cmp-path" },
             { "L3MON4D3/LuaSnip" },
         },
-        config = function() require("config.lsp") end,
+        config = require("config.lsp"),
     }
 end)

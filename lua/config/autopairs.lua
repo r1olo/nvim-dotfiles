@@ -1,3 +1,5 @@
-require("nvim-autopairs").setup {
-    enable_afterquote = false,
-}
+return function()
+    require("nvim-autopairs").setup {
+        enable_afterquote = false,
+    }
+end
