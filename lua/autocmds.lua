@@ -10,7 +10,7 @@ vim.api.nvim_create_autocmd("BufNewFile", {
 })
 
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-    pattern = { "*.txt", "*.tex", "*.md", "*.c", "*.h" },
+    pattern = { "*.txt", "*.tex", "*.md", "*.c", "*.h", "*.cpp", "*.hpp" },
     command = "set tw=80"
 })
 

@@ -28,9 +28,6 @@ return function()
             function(server)
                 require("lspconfig")[server].setup({
                     capabilities = require("cmp_nvim_lsp").default_capabilities(),
-                    on_attach = function(client)
-                        client.server_capabilities.semanticTokensProvider = nil
-                    end,
                     settings = {
                         completions = {
                             completeFunctionCalls = true,
@@ -40,6 +37,7 @@ return function()
             end,
         },
     })
+    require("lspconfig").clangd.setup{}
 
     local cmp = require("cmp")
     local luasnip = require("luasnip")

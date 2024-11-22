@@ -10,3 +10,5 @@ vim.opt.tabstop = 4
 vim.opt.expandtab = true
 
 vim.opt.concealcursor = "nc"
+
+vim.opt.colorcolumn = "80"
