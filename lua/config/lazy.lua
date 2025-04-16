@@ -20,8 +20,8 @@ require("lazy").setup {
     -- lualine
     require("plugins.lualine"),
 
-    -- dracula
-    require("plugins.dracula"),
+    -- colorscheme
+    require("plugins.colorscheme"),
 
     -- telescope
     require("plugins.telescope"),
