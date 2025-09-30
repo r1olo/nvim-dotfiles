@@ -2,8 +2,8 @@ return {
     "hrsh7th/nvim-cmp",
     dependencies = {
         { "neovim/nvim-lspconfig" },
-        { "williamboman/mason.nvim" },
-        { "williamboman/mason-lspconfig.nvim" },
+        { "mason-org/mason.nvim" },
+        { "mason-org/mason-lspconfig.nvim" },
         { "hrsh7th/cmp-buffer" },
         { "hrsh7th/cmp-nvim-lsp" },
         { "hrsh7th/cmp-nvim-lsp-signature-help" },
@@ -43,22 +43,20 @@ return {
         })
 
         require("mason").setup({})
+        require("lspconfig").pyright.setup {
+            capabilities = require("cmp_nvim_lsp").default_capabilities(),
+            settings = {
+                python = {
+                    analysis = {
+                        typeCheckingMode = "off"
+                    }
+                }
+            }
+        }
         require("mason-lspconfig").setup({
             ensure_installed = {},
-            handlers = {
-                function(server)
-                    require("lspconfig")[server].setup({
-                        capabilities = require("cmp_nvim_lsp").default_capabilities(),
-                        settings = {
-                            completions = {
-                                completeFunctionCalls = true,
-                            },
-                        },
-                    })
-                end,
-            },
+            automatic_enable = { exclude = { "pyright" } },
         })
-        --require("lspconfig").clangd.setup{}
 
         local cmp = require("cmp")
         local luasnip = require("luasnip")

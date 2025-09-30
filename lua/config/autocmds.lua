@@ -26,6 +26,11 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 })
 
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+    pattern = { "*.ts", "*.js" },
+    callback = require("hooks.js"),
+})
+
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
     pattern = { "*.cpp", "*.hpp", "*.cc", "*.hh" },
     callback = require("hooks.cpp"),
 })
