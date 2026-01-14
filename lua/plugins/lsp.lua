@@ -1,9 +1,12 @@
 return {
     "hrsh7th/nvim-cmp",
     dependencies = {
+        -- core lspconfig plugin (required for vim.lsp.config shim in 0.11)
         { "neovim/nvim-lspconfig" },
+        -- mason packages
         { "mason-org/mason.nvim" },
         { "mason-org/mason-lspconfig.nvim" },
+        -- cmp sources
         { "hrsh7th/cmp-buffer" },
         { "hrsh7th/cmp-nvim-lsp" },
         { "hrsh7th/cmp-nvim-lsp-signature-help" },
@@ -11,78 +14,72 @@ return {
         { "L3MON4D3/LuaSnip" },
     },
     config = function()
-        -- enable vim's diagnostic virtual text
-        vim.diagnostic.config {
-            virtual_text = true,
+        -- 1. Standard Diagnostic Config
+        vim.diagnostic.config({ virtual_text = true })
+        
+        -- 2. Define Capabilities
+        local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+        -- 3. Mason Setup
+        require("mason").setup()
+        require("mason-lspconfig").setup({
+            ensure_installed = {},
+        })
+
+        -----------------------------------------------------------------------
+        -- 4. Native LSP Configuration
+        -----------------------------------------------------------------------
+        
+        -- Define the configuration for clangd in the global registry
+        vim.lsp.config.clangd = {
+            capabilities = capabilities,
+            cmd = { 
+                "clangd", 
+                "--background-index", 
+                -- We MUST whitelist the ESP-IDF tools here. 
+                -- This cannot be done in .clangd for security reasons.
+                "--query-driver=**/.espressif/tools/**/bin/*gcc*"
+            },
+            root_markers = { ".clangd", ".git", "compile_commands.json" },
         }
 
-        vim.keymap.set("n", "gl", "<cmd>lua vim.diagnostic.open_float()<cr>")
-        vim.keymap.set("n", "[d", "<cmd>lua vim.diagnostic.goto_prev()<cr>")
-        vim.keymap.set("n", "]d", "<cmd>lua vim.diagnostic.goto_next()<cr>")
+        -- Enable the server globally
+        -- This tells nvim-lspconfig to attach this server to C/C++ buffers
+        vim.lsp.enable("clangd")
 
+        -----------------------------------------------------------------------
+        -- 5. LspAttach & Keymaps
+        -----------------------------------------------------------------------
         vim.api.nvim_create_autocmd("LspAttach", {
-            desc = "LSP actions",
             callback = function(event)
                 local opts = { buffer = event.buf }
-
-                -- unset formatexpr
-                vim.bo[event.buf].formatexpr = nil
-
-                vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>',
-                opts)
-                vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
-                vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
-                vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
-                vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-                vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-                vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
-                vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-                vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-                vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+                vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", opts)
+                vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
+                vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<cr>", opts)
+                vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", opts)
+                vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<cr>", opts)
+                vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>", opts)
+                vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<cr>", opts)
+                vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<cr>", opts)
+                vim.keymap.set({ "n", "x" }, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>", opts)
+                vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<cr>", opts)
             end,
         })
 
-        require("mason").setup({})
-        require("lspconfig").pyright.setup {
-            capabilities = require("cmp_nvim_lsp").default_capabilities(),
-            settings = {
-                python = {
-                    analysis = {
-                        typeCheckingMode = "off"
-                    }
-                }
-            }
-        }
-        require("mason-lspconfig").setup({
-            ensure_installed = {},
-            automatic_enable = { exclude = { "pyright" } },
-        })
-
+        -- 6. CMP Setup
         local cmp = require("cmp")
         local luasnip = require("luasnip")
-
         local has_words_before = function()
             unpack = unpack or table.unpack
             local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-            return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]
-                :sub(col, col):match("%s") == nil
+            return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
         end
 
         cmp.setup({
-            sources = {
-                { name = "buffer" },
-                { name = "path" },
-                { name = "nvim_lsp" },
-                { name = "nvim_lsp_signature_help" },
-            },
+            sources = { { name = "nvim_lsp" }, { name = "buffer" }, { name = "path" } },
             mapping = cmp.mapping.preset.insert({
-                -- Enter confirms selection
                 ["<CR>"] = cmp.mapping.confirm({ select = false }),
-
-                -- Ctrl + Space triggers completion menu
                 ["<C-Space>"] = cmp.mapping.complete(),
-
-                -- Tab
                 ["<Tab>"] = cmp.mapping(function(fallback)
                     if cmp.visible() then
                         cmp.select_next_item()
@@ -94,8 +91,6 @@ return {
                         fallback()
                     end
                 end, { "i", "s" }),
-
-                -- Backtab
                 ["<S-Tab>"] = cmp.mapping(function(fallback)
                     if cmp.visible() then
                         cmp.select_prev_item()
@@ -107,9 +102,7 @@ return {
                 end, { "i", "s" }),
             }),
             snippet = {
-                expand = function(args)
-                    require("luasnip").lsp_expand(args.body)
-                end,
+                expand = function(args) require("luasnip").lsp_expand(args.body) end,
             },
         })
     end

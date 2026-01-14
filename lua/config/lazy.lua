@@ -46,4 +46,10 @@ require("lazy").setup {
 
     -- fugitive
     require("plugins.fugitive"),
+
+    -- markdown
+    require("plugins.markdown"),
+
+    -- venn
+    require("plugins.venn")
 }
