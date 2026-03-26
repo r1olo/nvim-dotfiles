@@ -51,5 +51,5 @@ require("lazy").setup {
     require("plugins.markdown"),
 
     -- venn
-    require("plugins.venn")
+    require("plugins.venn"),
 }

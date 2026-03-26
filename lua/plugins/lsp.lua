@@ -47,6 +47,9 @@ return {
         -- This tells nvim-lspconfig to attach this server to C/C++ buffers
         vim.lsp.enable("clangd")
 
+        -- Enable rust-analyzer
+        vim.lsp.enable("rust_analyzer")
+
         -----------------------------------------------------------------------
         -- 5. LspAttach & Keymaps
         -----------------------------------------------------------------------
@@ -74,6 +77,19 @@ return {
             local line, col = unpack(vim.api.nvim_win_get_cursor(0))
             return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
         end
+
+        -- Cancel the LuaSnip session when leaving insert or select mode
+        vim.api.nvim_create_autocmd("ModeChanged", {
+            pattern = "*",
+            callback = function()
+                if ((vim.v.event.old_mode == 's' and vim.v.event.new_mode == 'n') or vim.v.event.old_mode == 'i')
+                    and luasnip.session.current_nodes[vim.api.nvim_get_current_buf()]
+                    and not luasnip.session.jump_active
+                then
+                    luasnip.unlink_current()
+                end
+            end
+        })
 
         cmp.setup({
             sources = { { name = "nvim_lsp" }, { name = "buffer" }, { name = "path" } },

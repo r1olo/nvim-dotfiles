@@ -32,6 +32,11 @@ return {
                 -- languages
                 additional_vim_regex_highlighting = { "python" },
             },
+
+            -- disable builtin indent
+            indent = {
+                enable = true,
+            },
         }
     end
 }
